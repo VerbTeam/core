@@ -3,7 +3,7 @@ module codeberg.org/VerbTeam/core
 go 1.25.3
 
 require (
-	codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026021952-78ac84f998d8
+	codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026022725-bf6129d90bd7
 	codeberg.org/VerbTeam/WordsCheck v0.0.0-20251025140723-216ae343a4a0
 	github.com/joho/godotenv v1.5.1
 )

@@ -8,6 +8,8 @@ codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026014233-22b1fa97c596 h1:CN1I+XkV
 codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026014233-22b1fa97c596/go.mod h1:ei15rLB94rrV1trSh92J4+NZevZwrmTcfzLA5eBk/8Q=
 codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026021952-78ac84f998d8 h1:2RHPz57MAWmhRpuFpi1qGg9DjIcleKDgOJcNOzuEqmc=
 codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026021952-78ac84f998d8/go.mod h1:ei15rLB94rrV1trSh92J4+NZevZwrmTcfzLA5eBk/8Q=
+codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026022725-bf6129d90bd7 h1:Q2qv6rQujKXuhV6T7pXAxZk/AAVERM2a14BrsTlt1yM=
+codeberg.org/VerbTeam/AvatarCheck v0.0.0-20251026022725-bf6129d90bd7/go.mod h1:ei15rLB94rrV1trSh92J4+NZevZwrmTcfzLA5eBk/8Q=
 codeberg.org/VerbTeam/WordsCheck v0.0.0-20251025140723-216ae343a4a0 h1:WJR8fetqB+pPiF5GzsUR5TczPfxPrGLK8SwDZq1uKNY=
 codeberg.org/VerbTeam/WordsCheck v0.0.0-20251025140723-216ae343a4a0/go.mod h1:ibfK1/P33FOQaUXu5+/TDv/VPjmsQj7YwlclQqMD57Y=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
