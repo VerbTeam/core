@@ -5,7 +5,7 @@ import (
 
 	"encoding/json"
 
-	api "codeburg.org/VerbTeam/core/api/roproxy"
+	api "codeberg.org/VerbTeam/core/api/roproxy"
 )
 
 func Run(userid int) string {

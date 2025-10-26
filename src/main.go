@@ -33,6 +33,8 @@ func main() {
 	}()
 
 	resBio := <-resChan // goes to this
+	resAvatar := <-resChan
 
 	fmt.Println(resBio)
+	fmt.Println(resAvatar)
 }
