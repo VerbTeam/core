@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -65,8 +66,12 @@ func Start() {
 		json.NewEncoder(w).Encode(resp)
 	})
 
-	fmt.Println("server up at http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+
 }
 
 func sendJSONError(w http.ResponseWriter, msg string, code int) {
