@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,8 +9,6 @@ import (
 
 	workers "codeberg.org/VerbTeam/core/worker"
 )
-
-var ctx = context.Background()
 
 func Start() {
 
@@ -29,14 +26,15 @@ func Start() {
 			return
 		}
 
+		res := newWorker(id)
+
 		resp := map[string]string{
-			"status": "submited!",
+			"status": res,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
 
-		go newWorker(id)
 	})
 
 	fmt.Println("server up at http://localhost:8080")
@@ -56,22 +54,59 @@ func sendJSONError(w http.ResponseWriter, msg string, code int) {
 	json.NewEncoder(w).Encode(errResp)
 }
 
-func newWorker(id int) {
+type Avatar struct {
+	Status string `json:"status"`
+	Reason string `json:"reason"`
+}
 
-	resChan := make(chan string) // make a channel
+type ProcessedInformation struct {
+	BioReason []Avatar `json:"bio"`
+	Avatar    Avatar   `json:"avatar"`
+}
 
-	// run this in a diffrent thread (or that what i know)
-	go func() {
-		resChan <- workers.BioRun(id) // catch it
-	}()
+func newWorker(id int) string {
+	fmt.Println("starting new worker..")
 
-	go func() {
-		resChan <- workers.AvatarRun(id) // catch it
-	}()
+	type result struct {
+		name string
+		data string
+	}
 
-	resBio := <-resChan // goes to this
-	resAvatar := <-resChan
+	resChan := make(chan result)
 
-	fmt.Println(resBio)
-	fmt.Println(resAvatar)
+	go func() { resChan <- result{"bio", workers.BioRun(id)} }()
+	go func() { resChan <- result{"avatar", workers.AvatarRun(id)} }()
+
+	var bioData, avatarData string
+
+	for i := 0; i < 2; i++ {
+		r := <-resChan
+		if r.name == "bio" {
+			bioData = r.data
+		} else if r.name == "avatar" {
+			avatarData = r.data
+		}
+	}
+
+	var bio []Avatar
+	if err := json.Unmarshal([]byte(bioData), &bio); err != nil {
+		panic(err)
+	}
+
+	var avatar Avatar
+	if err := json.Unmarshal([]byte(avatarData), &avatar); err != nil {
+		panic(err)
+	}
+
+	processed := ProcessedInformation{
+		BioReason: bio,
+		Avatar:    avatar,
+	}
+
+	jsonBytes, err := json.Marshal(processed)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(jsonBytes)
 }
