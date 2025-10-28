@@ -1,20 +1,30 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-
+	"os"
 	"strconv"
+	"time"
 
 	workers "codeberg.org/VerbTeam/core/worker"
+	"github.com/redis/go-redis/v9"
 )
 
 func Start() {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_PUBLIC_ENDPOINT"),
+		Username: os.Getenv("REDIS_USERNAME"),
+		Password: os.Getenv("REDIS_PASSWORDS"),
+		DB:       0,
+	})
 
-	http.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
-		value := r.URL.Query().Get("value")
+	http.HandleFunc("/submit", func(w http.ResponseWriter, req *http.Request) {
+		ctx := context.Background()
 
+		value := req.URL.Query().Get("value")
 		if value == "" {
 			sendJSONError(w, "bad request", http.StatusBadRequest)
 			return
@@ -22,35 +32,50 @@ func Start() {
 
 		id, err := strconv.Atoi(value)
 		if err != nil {
-			sendJSONError(w, "value must be a int", http.StatusBadRequest)
+			sendJSONError(w, "value must be an int", http.StatusBadRequest)
 			return
 		}
 
-		res := newWorker(id)
+		cacheKey := fmt.Sprintf("worker:%d", id)
+		cached, err := redisClient.Get(ctx, cacheKey).Result()
+		var resp map[string]interface{}
 
-		resp := map[string]string{
-			"status": res,
+		if err == redis.Nil {
+			res := newWorker(id)
+			resp = map[string]interface{}{
+				"status": res,
+			}
+
+			jsonData, err := json.Marshal(resp)
+			if err != nil {
+				panic(err)
+			}
+
+			err = redisClient.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
+			if err != nil {
+				panic(err)
+			}
+		} else if err != nil {
+			panic(err)
+		} else {
+			json.Unmarshal([]byte(cached), &resp)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
-
 	})
 
 	fmt.Println("server up at http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
-
 }
 
 func sendJSONError(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-
 	errResp := map[string]string{
 		"status":  "error",
 		"message": msg,
 	}
-
 	json.NewEncoder(w).Encode(errResp)
 }
 
@@ -65,8 +90,7 @@ type ProcessedInformation struct {
 }
 
 func newWorker(id int) string {
-	fmt.Println("starting new worker..")
-
+	fmt.Println("new worker running")
 	type result struct {
 		name string
 		data string
@@ -78,7 +102,6 @@ func newWorker(id int) string {
 	go func() { resChan <- result{"avatar", workers.AvatarRun(id)} }()
 
 	var bioData, avatarData string
-
 	for i := 0; i < 2; i++ {
 		r := <-resChan
 		if r.name == "bio" {
@@ -89,24 +112,16 @@ func newWorker(id int) string {
 	}
 
 	var bio []Avatar
-	if err := json.Unmarshal([]byte(bioData), &bio); err != nil {
-		panic(err)
-	}
+	json.Unmarshal([]byte(bioData), &bio)
 
 	var avatar Avatar
-	if err := json.Unmarshal([]byte(avatarData), &avatar); err != nil {
-		panic(err)
-	}
+	json.Unmarshal([]byte(avatarData), &avatar)
 
 	processed := ProcessedInformation{
 		BioReason: bio,
 		Avatar:    avatar,
 	}
 
-	jsonBytes, err := json.Marshal(processed)
-	if err != nil {
-		panic(err)
-	}
-
+	jsonBytes, _ := json.Marshal(processed)
 	return string(jsonBytes)
 }
