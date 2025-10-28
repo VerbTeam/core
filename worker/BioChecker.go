@@ -1,4 +1,4 @@
-package workerbiocheck
+package worker
 
 import (
 	wordcheck "codeberg.org/VerbTeam/WordsCheck"
@@ -8,7 +8,7 @@ import (
 	api "codeberg.org/VerbTeam/core/api/roproxy"
 )
 
-func Run(userid int) string {
+func BioRun(userid int) string {
 	bio, err := api.GetUserInfo(userid)
 	if err != nil {
 		return ""

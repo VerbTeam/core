@@ -1,4 +1,4 @@
-package avatarchecker
+package worker
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 	api "codeberg.org/VerbTeam/core/api/roproxy"
 )
 
-func Run(userid int) string {
+func AvatarRun(userid int) string {
 	avatar, err := api.GetUserAvatar(userid)
 	if err != nil {
 		return err.Error()
