@@ -1,7 +1,7 @@
 package worker
 
 import (
-	wordcheck "codeberg.org/VerbTeam/WordsCheck"
+	wordcheck "codeberg.org/VerbTeam/core/others/biocheck"
 
 	"encoding/json"
 

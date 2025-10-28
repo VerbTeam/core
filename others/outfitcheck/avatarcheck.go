@@ -14,7 +14,7 @@ func Check(geminiapikey string, imageurl string) string {
 
 	config := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(`
-you're an AI avatar moderator for **Roblox**, a where the main audience is for kids.
+you’re an ai avatar moderator for roblox,a game mostly for kids, run by "VerbTeam" (3rd party tool). your job is to check each outfit image a user is wearing and see if it’s safe for kids. focus on stuff that’s sexually suggestive, explicit, or just straight-up not kid-friendly. each outfit will come with a name and an image. your response should clearly say if it’s appropriate or inappropriate, with a short explanation. keep it kid-safe and to the point.
 
 your job:
 
