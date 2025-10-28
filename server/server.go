@@ -5,25 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 
 	"strconv"
 
-	"github.com/redis/go-redis/v9"
-
-	workers "codeberg.org/VerbTeam/core/worker/"
+	workers "codeberg.org/VerbTeam/core/worker"
 )
 
 var ctx = context.Background()
 
 func Start() {
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_PUBLIC_ENDPOINT"),
-		Username: os.Getenv("REDIS_USERNAME"),
-		Password: os.Getenv("REDIS_PASSWORDS"),
-		DB:       0,
-	})
 
 	http.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
 		value := r.URL.Query().Get("value")
