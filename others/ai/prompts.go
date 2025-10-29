@@ -89,7 +89,8 @@ const (
 	`
 
 	// Prompt credit : https://github.com/robalyx/rotector/blob/main/internal/ai/prompts.go#L195
-	SharedViolationGuidelines = `
+	// Modified.
+	BioCheckPrompt = `
 	Your job is : Bio Moderation
 	
 	* check if the bio is **appropriate** or **inappropriate**.
@@ -103,7 +104,7 @@ const (
 
 CRITICAL CONTEXT REQUIREMENTS: Words, phrases, or patterns listed below are violations ONLY when used in sexual, predatory, or grooming contexts. Isolated terms without clear sexual/predatory context must have confidence ≤0.3 and require additional supporting evidence. Single ambiguous terms with innocent interpretations must NOT be flagged without corroborating inappropriate content.
 
-CRITICAL: ZERO EXCEPTIONS ENFORCEMENT: Rules marked "(ZERO EXCEPTIONS)" must result in flagged=true.
+CRITICAL: IF THE BIO IS EMPTY, DO NOT MARK THEM AS INAPPROPRIATE.
 
 1. Exploitation Indicators:
 - Seeking of private interactions [DANGER LEVEL 4]

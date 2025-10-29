@@ -99,26 +99,50 @@ type ProcessedInformation struct {
 func newWorker(id int) string {
 	fmt.Println("new worker running")
 
-	type result struct {
-		name string
-		data string
-	}
-
+	type result struct{ name, data string }
 	resChan := make(chan result)
 
 	go func() { resChan <- result{"bio", workers.BioRun(id)} }()
+	go func() { resChan <- result{"bioAI", workers.BioRunAI(id)} }()
 	go func() { resChan <- result{"avatar", workers.AvatarRun(id)} }()
 
-	var bioData, avatarData string
-	for i := 0; i < 2; i++ {
+	bioArray := []interface{}{}
+	bioAIMap := map[string]interface{}{}
+	avatarMap := map[string]interface{}{}
+
+	for i := 0; i < 3; i++ {
 		r := <-resChan
-		if r.name == "bio" {
-			bioData = r.data
-		} else if r.name == "avatar" {
-			avatarData = r.data
+		switch r.name {
+		case "bio":
+			json.Unmarshal([]byte(r.data), &bioArray)
+		case "bioAI":
+			var unescaped string
+			if len(r.data) > 0 && r.data[0] == '"' {
+				json.Unmarshal([]byte(r.data), &unescaped)
+				r.data = unescaped
+			}
+			err := json.Unmarshal([]byte(r.data), &bioAIMap)
+			if err != nil {
+				fmt.Println("bioAI unmarshal error:", err)
+				fmt.Println("bioAI raw data:", r.data)
+			}
+		case "avatar":
+			err := json.Unmarshal([]byte(r.data), &avatarMap)
+			if err != nil {
+				fmt.Println("avatar unmarshal error:", err)
+				fmt.Println("avatar raw data:", r.data)
+			}
 		}
 	}
 
-	final := fmt.Sprintf(`{"bio":%s,"avatar":%s}`, bioData, avatarData)
-	return final
+	finalMap := map[string]interface{}{
+		"bio": map[string]interface{}{
+			"bloxdbwordlist": bioArray,
+			"bioAI":          bioAIMap,
+		},
+		"avatar": avatarMap,
+	}
+
+	finalJSON, _ := json.MarshalIndent(finalMap, "", "  ")
+	return string(finalJSON)
 }
