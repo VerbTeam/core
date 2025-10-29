@@ -43,9 +43,9 @@ func Start() {
 
 		if err == redis.Nil {
 			res := newWorker(id)
-			resp = map[string]interface{}{
-				"status": res,
-			}
+			var parsed map[string]interface{}
+			json.Unmarshal([]byte(res), &parsed)
+			resp = parsed
 
 			jsonData, err := json.Marshal(resp)
 			if err != nil {
@@ -70,6 +70,8 @@ func Start() {
 	if port == "" {
 		port = "8080"
 	}
+
+	fmt.Printf("server now live at https://localhost:%v\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
