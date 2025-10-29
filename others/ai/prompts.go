@@ -89,7 +89,17 @@ const (
 	`
 
 	// Prompt credit : https://github.com/robalyx/rotector/blob/main/internal/ai/prompts.go#L195
-	SharedViolationGuidelines = `CRITICAL SCOPE: Only flag content that is SEXUALLY inappropriate or predatory. All guidelines below apply exclusively to sexual or predatory contexts. Do not flag content that is merely offensive, racist, discriminatory, violent, or disturbing unless explicitly combined with sexual or predatory elements.
+	SharedViolationGuidelines = `
+	Your job is : Bio Moderation
+	
+	* check if the bio is **appropriate** or **inappropriate**.
+	* only reply with **one of these 2 answers**:
+
+	1. **Appropriate** – explain briefly why it's fine.
+	2. **Inappropriate** – Explain briefly why it's inappropriate.
+
+
+	CRITICAL SCOPE: Only flag content that is SEXUALLY inappropriate or predatory. All guidelines below apply exclusively to sexual or predatory contexts. Do not flag content that is merely offensive, racist, discriminatory, violent, or disturbing unless explicitly combined with sexual or predatory elements.
 
 CRITICAL CONTEXT REQUIREMENTS: Words, phrases, or patterns listed below are violations ONLY when used in sexual, predatory, or grooming contexts. Isolated terms without clear sexual/predatory context must have confidence ≤0.3 and require additional supporting evidence. Single ambiguous terms with innocent interpretations must NOT be flagged without corroborating inappropriate content.
 
