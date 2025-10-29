@@ -72,7 +72,8 @@ happy moderating!
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	clean := strings.ReplaceAll(result.Text(), "\n", "") // remove bloat
+	clean := strings.ReplaceAll(result.Text(), "\n", "") // bloat killer v2
+	clean = strings.ReplaceAll(clean, "  ", "")
+	clean = strings.TrimSpace(clean)
 	return clean
 }
