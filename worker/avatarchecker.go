@@ -3,7 +3,7 @@ package worker
 import (
 	"os"
 
-	checker "codeberg.org/VerbTeam/core/others/outfitcheck"
+	checker "codeberg.org/VerbTeam/core/others/ai/outfitcheck"
 
 	api "codeberg.org/VerbTeam/core/api/roproxy"
 )
