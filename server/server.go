@@ -96,6 +96,7 @@ type ProcessedInformation struct {
 
 func newWorker(id int) string {
 	fmt.Println("new worker running")
+
 	type result struct {
 		name string
 		data string
@@ -116,17 +117,6 @@ func newWorker(id int) string {
 		}
 	}
 
-	var bio []Avatar
-	json.Unmarshal([]byte(bioData), &bio)
-
-	var avatar Avatar
-	json.Unmarshal([]byte(avatarData), &avatar)
-
-	processed := ProcessedInformation{
-		BioReason: bio,
-		Avatar:    avatar,
-	}
-
-	jsonBytes, _ := json.Marshal(processed)
-	return string(jsonBytes)
+	final := fmt.Sprintf(`{"bio":%s,"avatar":%s}`, bioData, avatarData)
+	return final
 }
