@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"google.golang.org/genai"
 )
@@ -72,5 +73,6 @@ happy moderating!
 		log.Fatal(err)
 	}
 
-	return result.Text()
+	clean := strings.ReplaceAll(result.Text(), "\n", "") // remove bloat
+	return clean
 }
