@@ -12,7 +12,7 @@ import (
 	"codeberg.org/VerbTeam/core/others/ai"
 )
 
-var FullPrompt = ai.IntroductionPrompt + "\n" + ai.AvatarPrompt
+var FullPrompt = ai.IntroductionPrompt + "\n" + ai.AvatarPrompt + "\n" + ai.Rating
 
 func Check(geminiapikey string, imageurl string) string {
 	ctx := context.Background()
@@ -31,10 +31,11 @@ func Check(geminiapikey string, imageurl string) string {
 					Type: genai.TypeString,
 				},
 				"rating": {
-					Type: genai.TypeString,
+					Type: genai.TypeNumber,
 				},
 			},
-			PropertyOrdering: []string{"status", "reason"},
+			Required:         []string{"status", "reason", "rating"},
+			PropertyOrdering: []string{"status", "reason", "rating"},
 		},
 	}
 
