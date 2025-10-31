@@ -86,16 +86,6 @@ func sendJSONError(w http.ResponseWriter, msg string, code int) {
 	json.NewEncoder(w).Encode(errResp)
 }
 
-type Avatar struct {
-	Status string `json:"status"`
-	Reason string `json:"reason"`
-}
-
-type ProcessedInformation struct {
-	BioReason []Avatar `json:"bio"`
-	Avatar    Avatar   `json:"avatar"`
-}
-
 func newWorker(id int) string {
 	fmt.Println("new worker running")
 
