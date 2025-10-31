@@ -29,6 +29,9 @@ func Check(geminiapikey string, bio string) string {
 				"reason": {
 					Type: genai.TypeString,
 				},
+				"rating": {
+					Type: genai.TypeString,
+				},
 			},
 			PropertyOrdering: []string{"status", "reason"},
 		},

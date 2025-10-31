@@ -30,6 +30,9 @@ func Check(geminiapikey string, imageurl string) string {
 				"reason": {
 					Type: genai.TypeString,
 				},
+				"rating": {
+					Type: genai.TypeString,
+				},
 			},
 			PropertyOrdering: []string{"status", "reason"},
 		},

@@ -7,6 +7,23 @@ const (
 	You’re an ai avatar moderator for roblox, a game mostly for kids, run by "VerbTeam" (3rd party tool).
 
 	`
+
+	Rating = `
+Please rate the danger level below for the rating in our system.  
+Remember that this rating will be shared with other AI moderation systems — your job might not include the examples given.
+
+Use a decimal score between **0 and 5** based on how unsafe or suspicious the content or avatar seems.
+
+0 : Normal — completely safe, nothing wrong.  
+0.5 - 1 : Slightly sus — might contain encoded content (ROT13, Caesar cipher, etc.) or light profanity.  
+1.5 - 2 : Minor concern — has some inappropriate hints, slang, or borderline suggestive elements, but not severe.  
+2.5 - 3 : Moderate danger — visible inappropriate themes, partial nudity, fetish hints, or coded sexual content.  
+3.5 - 4 : High danger — clear sexualized or fetishized content, explicit imagery, or strong inappropriate language.  
+4.5 - 5 : Extreme danger — predatory, explicit, or highly unsafe material. Immediate action required.
+
+Always output your rating as a **number only** (e.g., 0, 1.5, 3, 4.5, 5).
+`
+
 	// Taken some parts of : https://github.com/robalyx/rotector/blob/main/internal/ai/prompts.go#L5
 	AvatarPrompt = `	
 	Your job is : Avatar Moderation
