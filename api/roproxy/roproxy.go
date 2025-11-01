@@ -24,6 +24,20 @@ type AvatarResponse struct {
 	Data []AvatarItem `json:"data"`
 }
 
+type Groups struct {
+	Data []GroupsItem `json:"data"`
+}
+
+type GroupsItem struct {
+	Group GroupInfo `json:"group"`
+}
+
+type GroupInfo struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 func GetUserInfo(userid int) (UserInfo, error) {
 	url := fmt.Sprintf("https://users.roproxy.com/v1/users/%d", userid)
 
@@ -70,4 +84,30 @@ func GetUserAvatar(userid int) (AvatarResponse, error) {
 	}
 
 	return res, nil
+}
+
+func GetUserGroups(userid int) (Groups, error) {
+	url := fmt.Sprintf("https://groups.roblox.com/v1/users/%d/groups/roles?includeLocked=true", userid)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return Groups{}, fmt.Errorf("error making GET request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Groups{}, fmt.Errorf("HTTP error: %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return Groups{}, fmt.Errorf("error reading response: %v", err)
+	}
+
+	var gp Groups
+	if err := json.Unmarshal(body, &gp); err != nil {
+		return Groups{}, fmt.Errorf("error unmarshalling JSON: %v", err)
+	}
+
+	return gp, nil
 }

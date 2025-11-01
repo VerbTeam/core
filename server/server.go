@@ -95,16 +95,20 @@ func newWorker(id int) string {
 	go func() { resChan <- result{"bio", workers.BioRun(id)} }()
 	go func() { resChan <- result{"bioAI", workers.BioRunAI(id)} }()
 	go func() { resChan <- result{"avatar", workers.AvatarRun(id)} }()
+	go func() { resChan <- result{"group", workers.RunGroupCheck(id)} }()
 
 	bioArray := []interface{}{}
 	bioAIMap := map[string]interface{}{}
 	avatarMap := map[string]interface{}{}
+	groupArray := []interface{}{}
 
 	for i := 0; i < 3; i++ {
 		r := <-resChan
 		switch r.name {
 		case "bio":
 			json.Unmarshal([]byte(r.data), &bioArray)
+		case "group":
+			json.Unmarshal([]byte(r.data), &groupArray)
 		case "bioAI":
 			var unescaped string
 			if len(r.data) > 0 && r.data[0] == '"' {
@@ -130,7 +134,8 @@ func newWorker(id int) string {
 			"bloxdbwordlist": bioArray,
 			"bioAI":          bioAIMap,
 		},
-		"avatar": avatarMap,
+		"avatar":        avatarMap,
+		"flaggedGroups": groupArray,
 	}
 
 	finalJSON, _ := json.MarshalIndent(finalMap, "", "  ")
