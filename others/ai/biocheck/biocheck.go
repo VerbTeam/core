@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"google.golang.org/genai"
@@ -14,6 +15,10 @@ import (
 var FullPrompt = ai.IntroductionPrompt + "\n" + ai.BioCheckPrompt + "\n" + ai.Rating
 
 func Check(geminiapikey string, bio string) string {
+	ailogging := log.New(os.Stdout, "[BIO]: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	ailogging.Printf("using model : %v", ai.BioModerationModel)
+
 	ctx := context.Background()
 
 	config := &genai.GenerateContentConfig{
@@ -47,7 +52,7 @@ func Check(geminiapikey string, bio string) string {
 
 	result, err := client.Models.GenerateContent(
 		ctx,
-		"gemini-flash-lite-latest",
+		ai.BioModerationModel,
 		genai.Text(fmt.Sprintf("Analyze this :%v", bio)),
 		config,
 	)

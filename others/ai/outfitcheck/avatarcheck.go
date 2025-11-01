@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"google.golang.org/genai"
@@ -15,6 +16,10 @@ import (
 var FullPrompt = ai.IntroductionPrompt + "\n" + ai.AvatarPrompt + "\n" + ai.Rating
 
 func Check(geminiapikey string, imageurl string) string {
+	ailogging := log.New(os.Stdout, "[AVATAR]: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	ailogging.Printf("using model : %v", ai.AvatarModerationModel)
+
 	ctx := context.Background()
 
 	config := &genai.GenerateContentConfig{
@@ -60,7 +65,7 @@ func Check(geminiapikey string, imageurl string) string {
 
 	result, err := client.Models.GenerateContent(
 		ctx,
-		"gemini-flash-lite-latest",
+		ai.AvatarModerationModel,
 		contents,
 		config,
 	)
