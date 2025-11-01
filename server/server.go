@@ -29,27 +29,53 @@ func Start() {
 		main.Println("new request for /submit!")
 		ctx := context.Background()
 
-		value := req.URL.Query().Get("value")
-		if value == "" {
+		value := req.URL.Query().Get("userid")
+		cache := req.URL.Query().Get("cache")
+
+		if value == "" || cache == "" {
 			main.Println("bad request")
 			sendJSONError(w, "bad request", http.StatusBadRequest)
 			return
 		}
 
-		id, err := strconv.Atoi(value)
-		if err != nil {
+		id, erre := strconv.Atoi(value)
+		if erre != nil {
 			main.Println("bad request")
 			sendJSONError(w, "value must be an int", http.StatusBadRequest)
 			return
 		}
 
-		main.Println("getting cached value...")
-		cacheKey := fmt.Sprintf("worker:%d", id)
-		cached, err := redisClient.Get(ctx, cacheKey).Result()
+		useCache := cache != "false"
 		var resp map[string]interface{}
+		cacheKey := fmt.Sprintf("worker:%d", id)
 
-		if err == redis.Nil {
-			main.Println("nothing cached. requesting new worker")
+		if useCache {
+			main.Println("getting cached value...")
+			cached, err := redisClient.Get(ctx, cacheKey).Result()
+			if err == redis.Nil {
+				main.Println("nothing cached. requesting new worker")
+
+				res := newWorker(id)
+				var parsed map[string]interface{}
+				json.Unmarshal([]byte(res), &parsed)
+				resp = parsed
+
+				jsonData, err := json.Marshal(resp)
+				if err != nil {
+					panic(err)
+				}
+
+				err = redisClient.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
+				if err != nil {
+					panic(err)
+				}
+			} else if err != nil {
+				panic(err)
+			} else {
+				json.Unmarshal([]byte(cached), &resp)
+			}
+		} else {
+			main.Println("cache disabled, calling new worker")
 
 			res := newWorker(id)
 			var parsed map[string]interface{}
@@ -65,10 +91,7 @@ func Start() {
 			if err != nil {
 				panic(err)
 			}
-		} else if err != nil {
-			panic(err)
-		} else {
-			json.Unmarshal([]byte(cached), &resp)
+
 		}
 
 		w.Header().Set("Content-Type", "application/json")
