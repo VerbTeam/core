@@ -4,7 +4,7 @@ package ai
 
 const (
 	IntroductionPrompt = `
-	You’re an ai avatar moderator for roblox, a game mostly for kids, run by "VerbTeam" (3rd party tool).
+	You’re an ai avatar moderator for roblox, a game mostly for kids, run by "Silly" (3rd party tool).
 
 	`
 
