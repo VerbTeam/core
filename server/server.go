@@ -10,8 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	workers "codeberg.org/VerbTeam/core/worker"
 	"github.com/redis/go-redis/v9"
+
+	workers "codeberg.org/VerbTeam/core/worker"
 )
 
 func Start() {
@@ -25,8 +26,15 @@ func Start() {
 		DB:       0,
 	})
 
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		resp := `what is this diddy blud doing with the api, is blud terry?`
+
+		w.Write([]byte(resp))
+	})
+
+
 	http.HandleFunc("/submit", func(w http.ResponseWriter, req *http.Request) {
-		main.Println("new request for /submit!")
+		main	.Println("new request for /submit!")
 		ctx := context.Background()
 
 		value := req.URL.Query().Get("userid")
