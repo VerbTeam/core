@@ -29,7 +29,7 @@ func main() {
 		}
 	}
 
-	main.Println("starting server...")
+	main.Println("check all passed, starting server...")
 
 	server.Start()
 }
