@@ -1,7 +1,7 @@
 package biocheck
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"codeberg.org/VerbTeam/core/others/biocheck/module/check"
@@ -9,18 +9,21 @@ import (
 )
 
 func Check(bio string, wordslisturl string) []string {
+
+	main := log.New(os.Stdout, "[BLOXDB]: ", log.Ldate|log.Ltime|log.Lshortfile)
+
 	if _, err := os.Stat("wordlist.txt"); os.IsNotExist(err) {
-		fmt.Println("wordlist.txt not found, downloading word list")
-		listdownloader.Download(wordslisturl)
+		main.Println("wordlist.txt not found, downloading word list")
+		listdownloader.Download("https://raw.githubusercontent.com/whoschip/wordlist/main/data/all.txt")
 
 	} else if err != nil {
-		fmt.Println("stat error:", err)
+		main.Println("stat error:", err)
 		return nil
 	}
 
 	data, err := os.ReadFile("wordlist.txt")
 	if err != nil {
-		fmt.Println("read error:", err)
+		main.Println("read error:", err)
 		return nil
 	}
 
