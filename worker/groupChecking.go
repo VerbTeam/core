@@ -36,7 +36,7 @@ func RunGroupCheck(userid int) string {
 	}
 
 	// step 2: make a "keep" list
-	keepList := []int64{35396105, 35065141, 34664468, 693308, 3331780, 143355, 33904411, 36058773, 17284863, 6046690, 1018746, 35991486, 36048528, 35216426, 35991486, 35661886, 36036768, 1035713, 17151715, 793439457} // more group ids can be put here but as of right now we just use a fixed list
+	keepList := []int64{35396105, 35065141, 34664468, 693308, 3331780, 143355, 33904411, 36058773, 17284863, 6046690, 1018746, 35991486, 36048528, 35216426, 35991486, 35661886, 36036768, 1035713, 17151715, 793439457, 34527814, 4565822, 6546926, 34408471, 35785938, 213308234} // more group ids can be put here but as of right now we just use a fixed list
 
 	// step 3: use a map for quick lookup
 	keepMap := make(map[int64]bool)

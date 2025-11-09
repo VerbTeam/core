@@ -32,9 +32,8 @@ func Start() {
 		w.Write([]byte(resp))
 	})
 
-
 	http.HandleFunc("/submit", func(w http.ResponseWriter, req *http.Request) {
-		main	.Println("new request for /submit!")
+		main.Println("new request for /submit!")
 		ctx := context.Background()
 
 		value := req.URL.Query().Get("userid")
@@ -112,7 +111,7 @@ func Start() {
 		port = "8080"
 	}
 
-	main.Printf("server now live at https://localhost:%v\n", port)
+	main.Printf("server now live at http://localhost:%v\n", port)
 	main.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
@@ -183,6 +182,8 @@ func newWorker(id int) string {
 		}
 	}
 
+	rating := float64(len(groupArray)) * 0.5
+
 	finalMap := map[string]interface{}{
 		"bio": map[string]interface{}{
 			"bloxdbwordlist": bioArray,
@@ -190,6 +191,7 @@ func newWorker(id int) string {
 		},
 		"avatar":        avatarMap,
 		"flaggedGroups": groupArray,
+		"groupRating":   rating,
 	}
 
 	finalJSON, _ := json.MarshalIndent(finalMap, "", "  ")
