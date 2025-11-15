@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"strconv"
 )
 
 type LocalModel struct {
@@ -19,7 +21,8 @@ func Fetch(text string) string {
 	main := log.New(os.Stdout, "[LOCAL MODEL]: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	main.Println("fetching to local model....")
-	response, err := http.Get(fmt.Sprintf("http://127.0.0.1:5000/?text=%s", text))
+	encoded := url.QueryEscape(text)
+	response, err := http.Get(fmt.Sprintf("http://127.0.0.1:5000/?text=%s", encoded))
 
 	if err != nil {
 		main.Fatal(err)
@@ -38,5 +41,6 @@ func Fetch(text string) string {
 	}
 
 	main.Println("done job")
-	return string(PDIDDY.Label) // 1 ands 0
+
+	return strconv.Itoa(PDIDDY.Label) // 1 ands 0
 }
