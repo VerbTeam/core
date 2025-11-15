@@ -4,14 +4,22 @@
 
 this is the main service powering the moderation system.
 
-the application uses a custom machine-learning model named **sybauML**, trained on the **FYM dataset** from hugging face. the model is fine-tuned from **facebookai/roberta-base**, allowing it to perform accurate text classification and detect inappropriate or unsafe roblox bios efficiently.
+the application uses a **two-stage classification pipeline**:
 
-after sybauML performs its initial classification, the system uses **gemini ai** for secondary analysis and contextual validation. this layered approach improves accuracy, reduces false positives, and ensures consistent moderation results.
+### 1. **machine-learning classification (sybauML)**
 
-the service is hosted on **koyeb** for reliability and easy deployment.
-if you choose to deploy it on koyeb, make sure to replace all environment variables with your own credentials.
+the first stage uses **sybauML**, a custom model fine-tuned from **facebookai/roberta-base** and trained on the **FYM dataset** from hugging face. this model performs fast, reliable text classification specifically optimized for roblox-style bios, detecting unsafe, inappropriate, or disallowed content.
 
-the public endpoint for this service is:
+### 2. **gemini ai classification**
+
+after the initial ML pass, the text is sent to **gemini ai** for secondary classification. gemini adds contextual reasoning, edge-case detection, and higher-level semantic checks to reduce false positives and handle cases that require more nuanced understanding.
+
+using both stages ensures high accuracy, stability, and consistency across moderation decisions.
+
+the service is hosted on **koyeb**, and you can deploy it directly using the button above.
+if you deploy it yourself, make sure to replace all environment variables with your own credentials.
+
+public endpoint:
 
 ```
 https://sillycore.koyeb.app/
