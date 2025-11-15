@@ -18,7 +18,7 @@ import (
 func Start() {
 	main := log.New(os.Stdout, "[SERVER]: ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	main.Println("init redis...")
+	main.Println("initing redis...")
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("REDIS_PUBLIC_ENDPOINT"),
 		Username: os.Getenv("REDIS_USERNAME"),
