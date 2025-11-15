@@ -28,33 +28,56 @@ func Start() {
 
 	http.HandleFunc("/MLchecking", func(w http.ResponseWriter, r *http.Request) {
 		main.Println("new request for /MLchecking!")
-		ctx := context.Background()
+		if os.Getenv("ENABLE_LOCAL_MODEL") == "true" {
+			ctx := context.Background()
 
-		value := r.URL.Query().Get("id")
-		cache := r.URL.Query().Get("cache")
+			value := r.URL.Query().Get("id")
+			cache := r.URL.Query().Get("cache")
 
-		if value == "" || cache == "" {
-			main.Println("bad request")
-			sendJSONError(w, "bad request", http.StatusBadRequest)
-			return
-		}
+			if value == "" || cache == "" {
+				main.Println("bad request")
+				sendJSONError(w, "bad request", http.StatusBadRequest)
+				return
+			}
 
-		id, erre := strconv.Atoi(value)
-		if erre != nil {
-			main.Println("bad request")
-			sendJSONError(w, "id must be an int", http.StatusBadRequest)
-			return
-		}
+			id, erre := strconv.Atoi(value)
+			if erre != nil {
+				main.Println("bad request")
+				sendJSONError(w, "id must be an int", http.StatusBadRequest)
+				return
+			}
 
-		useCache := cache != "false"
-		var resp map[string]interface{}
-		cacheKey := fmt.Sprintf("worker:%d", id)
+			useCache := cache != "false"
+			var resp map[string]interface{}
+			cacheKey := fmt.Sprintf("worker:%d", id)
 
-		if useCache {
-			main.Println("getting cached value...")
-			cached, err := redisClient.Get(ctx, cacheKey).Result()
-			if err == redis.Nil {
-				main.Println("nothing cached. requesting new worker")
+			if useCache {
+				main.Println("getting cached value...")
+				cached, err := redisClient.Get(ctx, cacheKey).Result()
+				if err == redis.Nil {
+					main.Println("nothing cached. requesting new worker")
+
+					res := newWorkerML(id)
+					var parsed map[string]interface{}
+					json.Unmarshal([]byte(res), &parsed)
+					resp = parsed
+
+					jsonData, err := json.Marshal(resp)
+					if err != nil {
+						panic(err)
+					}
+
+					err = redisClient.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
+					if err != nil {
+						panic(err)
+					}
+				} else if err != nil {
+					panic(err)
+				} else {
+					json.Unmarshal([]byte(cached), &resp)
+				}
+			} else {
+				main.Println("cache disabled, calling new worker")
 
 				res := newWorkerML(id)
 				var parsed map[string]interface{}
@@ -70,34 +93,18 @@ func Start() {
 				if err != nil {
 					panic(err)
 				}
-			} else if err != nil {
-				panic(err)
-			} else {
-				json.Unmarshal([]byte(cached), &resp)
+
 			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(resp)
+			main.Print("End for /MLchecking")
+
 		} else {
-			main.Println("cache disabled, calling new worker")
+			resp := `Local model is disabled.`
 
-			res := newWorkerML(id)
-			var parsed map[string]interface{}
-			json.Unmarshal([]byte(res), &parsed)
-			resp = parsed
-
-			jsonData, err := json.Marshal(resp)
-			if err != nil {
-				panic(err)
-			}
-
-			err = redisClient.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
-			if err != nil {
-				panic(err)
-			}
-
+			w.Write([]byte(resp))
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
-		main.Print("End for /MLchecking")
 
 	})
 
