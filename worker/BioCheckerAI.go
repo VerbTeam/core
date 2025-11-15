@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 
 	api "codeberg.org/VerbTeam/core/api/roproxy"
+
+	lc "codeberg.org/VerbTeam/core/server/local_model"
 )
 
 func BioRunAI(userid int) string {
@@ -29,4 +31,15 @@ func BioRunAI(userid int) string {
 	}
 
 	return string(jsonBytes)
+}
+
+func BioRunAIML(userid int) string {
+	bio, err := api.GetUserInfo(userid)
+	if err != nil {
+		return ""
+	}
+
+	res := lc.Fetch(bio.Description)
+
+	return string(res)
 }

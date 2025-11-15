@@ -1,0 +1,1 @@
+Run https://github.com/SillyProjectsT/blank-worker to use this local model thing

@@ -26,6 +26,88 @@ func Start() {
 		DB:       0,
 	})
 
+	http.HandleFunc("/MLchecking", func(w http.ResponseWriter, r *http.Request) {
+		main.Println("new request for /MLchecking!")
+		if os.Getenv("ENABLE_LOCAL_MODEL") == "true" {
+			ctx := context.Background()
+
+			value := r.URL.Query().Get("id")
+			cache := r.URL.Query().Get("cache")
+
+			if value == "" || cache == "" {
+				main.Println("bad request")
+				sendJSONError(w, "bad request", http.StatusBadRequest)
+				return
+			}
+
+			id, erre := strconv.Atoi(value)
+			if erre != nil {
+				main.Println("bad request")
+				sendJSONError(w, "id must be an int", http.StatusBadRequest)
+				return
+			}
+
+			useCache := cache != "false"
+			var resp map[string]interface{}
+			cacheKey := fmt.Sprintf("worker:%d", id)
+
+			if useCache {
+				main.Println("getting cached value...")
+				cached, err := redisClient.Get(ctx, cacheKey).Result()
+				if err == redis.Nil {
+					main.Println("nothing cached. requesting new worker")
+
+					res := newWorkerML(id)
+					var parsed map[string]interface{}
+					json.Unmarshal([]byte(res), &parsed)
+					resp = parsed
+
+					jsonData, err := json.Marshal(resp)
+					if err != nil {
+						panic(err)
+					}
+
+					err = redisClient.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
+					if err != nil {
+						panic(err)
+					}
+				} else if err != nil {
+					panic(err)
+				} else {
+					json.Unmarshal([]byte(cached), &resp)
+				}
+			} else {
+				main.Println("cache disabled, calling new worker")
+
+				res := newWorkerML(id)
+				var parsed map[string]interface{}
+				json.Unmarshal([]byte(res), &parsed)
+				resp = parsed
+
+				jsonData, err := json.Marshal(resp)
+				if err != nil {
+					panic(err)
+				}
+
+				err = redisClient.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
+				if err != nil {
+					panic(err)
+				}
+
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(resp)
+			main.Print("End for /MLchecking")
+
+		} else {
+			resp := `Local model is disabled.`
+
+			w.Write([]byte(resp))
+		}
+
+	})
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		resp := `what is this diddy blud doing with the api, is blud terry?`
 
@@ -190,6 +272,67 @@ func newWorker(id int) string {
 			"bioAI":          bioAIMap,
 		},
 		"avatar":        avatarMap,
+		"flaggedGroups": groupArray,
+		"groupRating":   rating,
+	}
+
+	finalJSON, _ := json.MarshalIndent(finalMap, "", "  ")
+
+	main.Println("done")
+
+	return string(finalJSON)
+}
+
+func newWorkerML(id int) string {
+	main := log.New(os.Stdout, "[WORKER]: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	main.Println("new worker running")
+
+	type result struct{ name, data string }
+	resChan := make(chan result)
+
+	main.Println("new thread for bio")
+	go func() { resChan <- result{"bio", workers.BioRun(id)} }()
+
+	main.Println("new thread for bioAI (sybauML version)")
+	go func() { resChan <- result{"bioAI", workers.BioRunAIML(id)} }()
+
+	main.Println("new thread for group")
+	go func() { resChan <- result{"group", workers.RunGroupCheck(id)} }()
+
+	bioArray := []interface{}{}
+	var bioAILabel int
+	groupArray := []interface{}{}
+
+	for i := 0; i < 3; i++ {
+		r := <-resChan
+		switch r.name {
+		case "bio":
+			main.Println("rev bio")
+			json.Unmarshal([]byte(r.data), &bioArray)
+		case "group":
+			main.Println("rev group")
+			json.Unmarshal([]byte(r.data), &groupArray)
+		case "bioAI":
+			main.Println("rev bioAI")
+
+			label, err := strconv.Atoi(r.data)
+			if err != nil {
+				main.Println("bioAI label parsing error:", err)
+				bioAILabel = -1
+			} else {
+				bioAILabel = label
+			}
+		}
+	}
+
+	rating := float64(len(groupArray)) * 0.5
+
+	finalMap := map[string]interface{}{
+		"bio": map[string]interface{}{
+			"bloxdbwordlist": bioArray,
+			"bioAILabel":     bioAILabel,
+		},
 		"flaggedGroups": groupArray,
 		"groupRating":   rating,
 	}
