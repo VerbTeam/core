@@ -4,7 +4,7 @@
 
 this is the main service powering the moderation system.
 
-the application uses a **two-stage classification pipeline**:
+the application have **two-type classification pipeline**:
 
 ### 1. **machine-learning classification (sybauML)**
 
@@ -12,9 +12,9 @@ the first stage uses **sybauML**, a custom model fine-tuned from **facebookai/ro
 
 ### 2. **gemini ai classification**
 
-after the initial ML pass, the text is sent to **gemini ai** for secondary classification. gemini adds contextual reasoning, edge-case detection, and higher-level semantic checks to reduce false positives and handle cases that require more nuanced understanding.
+the text is sent to **gemini ai** for secondary classification. gemini adds contextual reasoning, edge-case detection, and higher-level semantic checks to reduce false positives and handle cases that require more nuanced understanding.
 
-using both stages ensures high accuracy, stability, and consistency across moderation decisions.
+
 
 the service is hosted on **koyeb**, and you can deploy it directly using the button above.
 if you deploy it yourself, make sure to replace all environment variables with your own credentials.
